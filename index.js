@@ -32,11 +32,11 @@ function buildResponse(sessionAttributes, speechletResponse) {
 
 function startTalking(session, callback) {
     getJson(
-        session, 
+        session,
         function(result) {
             const sessionAttributes = session.attributes;
             const cardTitle = 'TalkHipster2Me';
-            const speechOutput = result.text;
+            const speechOutput = result.text + ' Shall I continue?';
             const repromptText = 'Shall I continue?';
             const shouldEndSession = false;
             callback(sessionAttributes,
@@ -67,7 +67,7 @@ function shutUp(session, callback) {
 
 function handleSessionEndRequest(callback) {
     const cardTitle = 'TalkHipster2Me';
-    const speechOutput = 'Yeah, whatever';
+    const speechOutput = 'Alexa out!';
     const shouldEndSession = true;
     callback({}, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
@@ -78,6 +78,10 @@ function onSessionStarted(sessionStartedRequest, session) {
 
 function onLaunch(launchRequest, session, callback) {
     console.log(`onLaunch requestId=${launchRequest.requestId}, sessionId=${session.sessionId}`);
+    if (!session.attributes) {
+        session.attributes = {};
+    }
+    session.latin = false;
     startTalking(session, callback);
 }
 
@@ -86,7 +90,11 @@ function onIntent(intentRequest, session, callback) {
 
     const intent = intentRequest.intent;
     const intentName = intentRequest.intent.name;
-    
+
+    if (!session.attributes) {
+        session.attributes = {};
+    }
+
     if (intentName === 'LatinIntent') {
         session.attributes.latin = true;
         startTalking(session, callback);
@@ -141,7 +149,7 @@ exports.handler = (event, context, callback) => {
         console.log(`event.session.application.applicationId=${event.session.application.applicationId}`);
 
         if (event.session.application.applicationId !== 'amzn1.echo-sdk-ams.app.c5c80a10-b310-4430-8d53-396d6e5b5c66') {
-             callback('Invalid Application ID');
+            callback('Invalid Application ID');
         }
 
         if (event.session.new) {
@@ -152,14 +160,14 @@ exports.handler = (event, context, callback) => {
             onLaunch(event.request,
                 event.session,
                 (sessionAttributes, speechletResponse) => {
-                    callback(null, buildResponse(sessionAttributes, speechletResponse));
-                });
+                callback(null, buildResponse(sessionAttributes, speechletResponse));
+        });
         } else if (event.request.type === 'IntentRequest') {
             onIntent(event.request,
                 event.session,
                 (sessionAttributes, speechletResponse) => {
-                    callback(null, buildResponse(sessionAttributes, speechletResponse));
-                });
+                callback(null, buildResponse(sessionAttributes, speechletResponse));
+        });
         } else if (event.request.type === 'SessionEndedRequest') {
             onSessionEnded(event.request, event.session);
             callback();
