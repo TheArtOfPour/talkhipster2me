@@ -148,7 +148,7 @@ exports.handler = (event, context, callback) => {
     try {
         console.log(`event.session.application.applicationId=${event.session.application.applicationId}`);
 
-        if (event.session.application.applicationId !== 'amzn1.echo-sdk-ams.app.c5c80a10-b310-4430-8d53-396d6e5b5c66') {
+        if (event.session.application.applicationId !== 'INSERT-ID-HERE') {
             callback('Invalid Application ID');
         }
 
